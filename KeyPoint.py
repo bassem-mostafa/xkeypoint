@@ -30,11 +30,14 @@ Copyright 2024 BaSSeM
 ## #### Import(s) ##############################################################
 ## #############################################################################
 
+from xkeypoint import cv2
 from xkeypoint import StringIO
 
 ## #############################################################################
 ## #### Private Type(s) ########################################################
 ## #############################################################################
+
+CVKeyPoint = cv2.KeyPoint
 
 ## #############################################################################
 ## #### Private Method(s) Prototype ############################################
@@ -56,11 +59,27 @@ from xkeypoint import StringIO
 ## #### Public Type(s) #########################################################
 ## #############################################################################
 
-class KeyPoint:
-    def __init__(self):
-        self.point = None       # consists of (method, x, y)
-        self.descriptor = None  # consists of (method, vector)
+class KeyPoint(CVKeyPoint):
+    def __init__(self, *args):
+        super().__init__()
+
+        if len(args) == 1:
+            if type(args[0]) == CVKeyPoint:
+                # OpenCV Key-Point deep-copy
+                kp = args[0]
+                self.pt = kp.pt
+                self.response = kp.response
+                self.size = kp.size
+                self.angle = kp.angle
+                self.octave = kp.octave
+                self.class_id = kp.class_id
+            else:
+                raise RuntimeError(f"Un-supported type of argument `{type(args[0])}`")
+        elif len(args) > 1:
+            raise RuntimeError(f"Un supported number of arguments `{len(args)}`")
     
+        self.descriptor = None
+        self.point = self.pt # Alias
     def __repr__(self):
         '''
         Describes the Key-Point
@@ -68,9 +87,12 @@ class KeyPoint:
             a string that describes the Key-Point
         '''
         text = StringIO()
-        print(f"{self.__class__.__name__} Attributes:", file=text)
-        for key, value in self.__dict__.items():
-            print(f"...\t{str(key):20s}: `{value}`", file=text)
+        if False: # For debugging purposes, Enable for extra information
+            print(f"{self.__class__.__name__} Attributes:", file=text)
+            for key, value in self.__dict__.items():
+                print(f"...\t{str(key):20s}: `{value}`", file=text)
+        else:
+            print(f"< {self.__class__.__name__} {id(self):016X}>", file=text, end="")
         return text.getvalue()
         
 

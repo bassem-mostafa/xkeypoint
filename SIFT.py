@@ -44,6 +44,8 @@ from xkeypoint import Describer
 ## #### Private Method(s) Prototype ############################################
 ## #############################################################################
 
+SIFT_create = cv2.SIFT_create
+
 ## #############################################################################
 ## #### Private Variable(s) ####################################################
 ## #############################################################################
@@ -51,16 +53,6 @@ from xkeypoint import Describer
 ## #############################################################################
 ## #### Private Method(s) ######################################################
 ## #############################################################################
-    
-def _KeyPointFromCVKeyPoint(CVKeyPoint):
-    kp = KeyPoint()
-    kp.point = ("SIFT", CVKeyPoint.pt[0], CVKeyPoint.pt[1])
-    kp.response = CVKeyPoint.response
-    kp.size = CVKeyPoint.size
-    kp.angle = CVKeyPoint.angle
-    kp.octave = CVKeyPoint.octave
-    kp.class_id = CVKeyPoint.class_id
-    return kp
 
 ## #############################################################################
 ## #### Public Method(s) Prototype #############################################
@@ -72,18 +64,30 @@ def _KeyPointFromCVKeyPoint(CVKeyPoint):
 
 class SIFT(Detector, Describer):
     def __init__(self):
-        self._detector = cv2.SIFT_create()
+        self._detector = SIFT_create()
+        self._describer = self._detector
     
     def detect(self, images):
         output = []
         for image in images:
             output.append(self._detector.detect(image))
             output[-1] = sorted(output[-1], key = lambda kp: kp.response, reverse = True)
-            output[-1] = tuple(map(lambda kp: _KeyPointFromCVKeyPoint(kp), output[-1]))
+            output[-1] = tuple(map(lambda kp: KeyPoint(kp), output[-1]))
+            output[-1] = (f"{self._detector.__class__.__name__}", output[-1])
         return tuple(output)
 
     def describe(self, keypoints, images):
-        ...
+        output = []
+        for image, image_keypoints in zip(images, keypoints):
+            keypoints_method, keypoints_values = image_keypoints
+            if keypoints_method not in [self._detector.__class__.__name__]:
+                raise RuntimeError(f"Un-supported keypoints detector `{keypoints_method}`")
+            output.append(self._describer.compute(image, keypoints_values)[1])
+            # Update key-points' descriptor references
+            for desc, kp in zip(output[-1], keypoints_values):
+                kp.descriptor = desc
+            output[-1] = (f"{self._describer.__class__.__name__}", output[-1])
+        return tuple(output)
 
 ## #############################################################################
 ## #### Public Method(s) #######################################################
