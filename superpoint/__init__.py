@@ -33,7 +33,7 @@ Copyright 2024 BaSSeM
 from xkeypoint import cv2
 from xkeypoint import torch
 
-from .superpoint import SuperPoint as _SuperPoint
+from .superpoint import SuperPoint
 from .superglue import SuperGlue as _SuperGlue
 
 ## #############################################################################
@@ -59,65 +59,65 @@ from .superglue import SuperGlue as _SuperGlue
 ## #############################################################################
 ## #### Public Type(s) #########################################################
 ## #############################################################################
-
-class SuperPoint:
-    '''
-    Wrapper of superpoint actual model
-    '''
-    def __init__(self):
-        ...
-
-    def detect(self, image):
-        height, width = image.shape[:2]
-        if height < 8 or width < 8:
-            # Invalid image dimension to be evaluated
-            keypoints = []
-        else:
-            detector = _SuperPoint({})
-            
-            image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-            image = torch.from_numpy(image/255.).float()[None, None]
-            output = detector({'image': image})
-            output.update(
-                          {
-                          "keypoints": output["keypoints"][0].detach().numpy(),
-                          "scores": output["scores"][0].detach().numpy(),
-                          "descriptors": output["descriptors"][0].detach().numpy().T, # Note the `.T`
-                          }
-                         )
-            keypoints = [cv2.KeyPoint(x = keypoint[0], y = keypoint[1], size = 1, response = score) for keypoint, score, _descriptor in zip(output["keypoints"], output["scores"], output["descriptors"])]
-        return keypoints
-    
-    def compute(self, image, keypoints):
-        height, width = image.shape[:2]
-        if height < 8 or width < 8:
-            # Invalid image dimension to be evaluated
-            keypoints, descriptors = [], []
-        else:
-            describer = _SuperPoint({})
-            
-            image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-            image = torch.from_numpy(image/255.).float()[None, None]
-            output = describer({'image': image})
-            output.update(
-                          {
-                          "keypoints": output["keypoints"][0].detach().numpy(),
-                          "scores": output["scores"][0].detach().numpy(),
-                          "descriptors": output["descriptors"][0].detach().numpy().T, # Note the `.T`
-                          }
-                         )
-        
-        try:
-            # Filter out keypoints NOT existing in `keypoints` argument
-            keypoints, descriptors = zip(*[(cv2.KeyPoint(x = keypoint[0], y = keypoint[1], size = 1, response = score), descriptor) for keypoint, score, descriptor in zip(output["keypoints"], output["scores"], output["descriptors"]) if (keypoint[0], keypoint[1]) in [keypoint.pt for keypoint in keypoints]])
-            
-            # No filter
-            # keypoints, descriptors = zip(*[(cv2.KeyPoint(x = keypoint[0], y = keypoint[1], size = 1, response = 0), descriptor) for keypoint, score, descriptor in zip(output["keypoints"], output["scores"], output["descriptors"])])
-        except:
-            # In case of no keypoints to describe, return empty keypoints, desciptors
-            keypoints, descriptors = [], []
-        keypoints, descriptors = list(keypoints), cv2.numpy.array(descriptors)
-        return keypoints, descriptors
+#
+# class SuperPoint:
+#     '''
+#     Wrapper of superpoint actual model
+#     '''
+#     def __init__(self):
+#         ...
+#
+#     def detect(self, image):
+#         height, width = image.shape[:2]
+#         if height < 8 or width < 8:
+#             # Invalid image dimension to be evaluated
+#             keypoints = []
+#         else:
+#             detector = _SuperPoint({})
+#
+#             image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+#             image = torch.from_numpy(image/255.).float()[None, None]
+#             output = detector({'image': image})
+#             output.update(
+#                           {
+#                           "keypoints": output["keypoints"][0].detach().numpy(),
+#                           "scores": output["scores"][0].detach().numpy(),
+#                           "descriptors": output["descriptors"][0].detach().numpy().T, # Note the `.T`
+#                           }
+#                          )
+#             keypoints = [cv2.KeyPoint(x = keypoint[0], y = keypoint[1], size = 1, response = score) for keypoint, score, _descriptor in zip(output["keypoints"], output["scores"], output["descriptors"])]
+#         return keypoints
+#
+#     def compute(self, image, keypoints):
+#         height, width = image.shape[:2]
+#         if height < 8 or width < 8:
+#             # Invalid image dimension to be evaluated
+#             keypoints, descriptors = [], []
+#         else:
+#             describer = _SuperPoint({})
+#
+#             image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+#             image = torch.from_numpy(image/255.).float()[None, None]
+#             output = describer({'image': image})
+#             output.update(
+#                           {
+#                           "keypoints": output["keypoints"][0].detach().numpy(),
+#                           "scores": output["scores"][0].detach().numpy(),
+#                           "descriptors": output["descriptors"][0].detach().numpy().T, # Note the `.T`
+#                           }
+#                          )
+#
+#         try:
+#             # Filter out keypoints NOT existing in `keypoints` argument
+#             keypoints, descriptors = zip(*[(cv2.KeyPoint(x = keypoint[0], y = keypoint[1], size = 1, response = score), descriptor) for keypoint, score, descriptor in zip(output["keypoints"], output["scores"], output["descriptors"]) if (keypoint[0], keypoint[1]) in [keypoint.pt for keypoint in keypoints]])
+#
+#             # No filter
+#             # keypoints, descriptors = zip(*[(cv2.KeyPoint(x = keypoint[0], y = keypoint[1], size = 1, response = 0), descriptor) for keypoint, score, descriptor in zip(output["keypoints"], output["scores"], output["descriptors"])])
+#         except:
+#             # In case of no keypoints to describe, return empty keypoints, desciptors
+#             keypoints, descriptors = [], []
+#         keypoints, descriptors = list(keypoints), cv2.numpy.array(descriptors)
+#         return keypoints, descriptors
 
 class SuperGlue:
     '''
@@ -129,8 +129,8 @@ class SuperGlue:
     def __call__(self, images, keypoints, descriptors):
         matcher = _SuperGlue(
                              {
-                             'weights': 'outdoor',
-                            'match_threshold': 0.4,
+                             'weights': 'indoor',
+                             'match_threshold': 0.4,
                              }
                             )
         
@@ -144,8 +144,8 @@ class SuperGlue:
         output = matcher(
                           {
                           'image0': images[0], 'image1': images[1],
-                          'descriptors0': torch.from_numpy(descriptors[0].T), 'descriptors1': torch.from_numpy(descriptors[1].T),
-                          'keypoints0': torch.from_numpy(cv2.numpy.asarray([kp.pt for kp in keypoints[0]])).float(), 'keypoints1': torch.from_numpy(cv2.numpy.asarray([kp.pt for kp in keypoints[1]])).float(),
+                          'descriptors0': torch.from_numpy(descriptors[0].T).float()[None], 'descriptors1': torch.from_numpy(descriptors[1].T).float()[None],
+                          'keypoints0': torch.from_numpy(cv2.numpy.asarray([kp.pt for kp in keypoints[0]])).float()[None], 'keypoints1': torch.from_numpy(cv2.numpy.asarray([kp.pt for kp in keypoints[1]])).float()[None],
                           'scores0': torch.from_numpy(cv2.numpy.asarray([kp.response for kp in keypoints[0]])).float()[None], 'scores1': torch.from_numpy(cv2.numpy.asarray([kp.response for kp in keypoints[1]])).float()[None],
                           }
                          )

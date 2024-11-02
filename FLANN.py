@@ -97,7 +97,6 @@ class FLANN(Matcher):
                 or False:
                 self._matcher = self.kdtree
             else:
-                print(SIFT.__class__.__name__)
                 raise RuntimeError(f"Un-supported descriptor methods `{descriptors_method1}` and `{descriptors_method2}`")
             # Compute matches
             output.append(self._matcher.knnMatch(image_descriptors1, image_descriptors2, k = 2))

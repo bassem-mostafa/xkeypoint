@@ -51,6 +51,8 @@ from .Matcher import Matcher
 
 from .SIFT import SIFT
 from .FLANN import FLANN
+from .SuperPoint import SuperPoint
+from .SuperGlue import SuperGlue
 
 ## #############################################################################
 ## #### Private Type(s) ########################################################
