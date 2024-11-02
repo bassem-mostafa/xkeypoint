@@ -40,10 +40,6 @@ from matplotlib import pyplot
 
 from itertools import combinations
 
-from .KeypointDetector import KeypointDetector
-from .KeypointDescriptor import KeypointDescriptor
-from .KeypointMatcher import KeypointMatcher
-
 from .KeyPoint import KeyPoint
 from .Detector import Detector
 from .Describer import Describer
@@ -53,6 +49,10 @@ from .SIFT import SIFT
 from .FLANN import FLANN
 from .SuperPoint import SuperPoint
 from .SuperGlue import SuperGlue
+
+from .KeypointDetector import KeypointDetector
+from .KeypointDescriptor import KeypointDescriptor
+from .KeypointMatcher import KeypointMatcher
 
 ## #############################################################################
 ## #### Private Type(s) ########################################################
