@@ -31,11 +31,11 @@ Copyright 2024 BaSSeM
 ## #############################################################################
 
 from xkeypoint import cv2
+from xkeypoint import numpy as np
 from xkeypoint import combinations
 from xkeypoint import SuperPoint as KeyPointDetector
 from xkeypoint import SuperPoint as KeyPointDescriber
 from xkeypoint import SuperGlue as KeyPointMatcher
-import numpy as np
 
 ## #############################################################################
 ## #### Private Type(s) ########################################################
