@@ -73,7 +73,7 @@ class FLANN(Matcher):
                                algorithm = FLANN_INDEX_KDTREE,
                                trees = 5,
                                )
-            cls.kdtree = cv2.FlannBasedMatcher(index_params, search_params)
+            cls._singleton.kdtree = cv2.FlannBasedMatcher(index_params, search_params)
             # Initialize flann-lsh matcher
             search_params = dict(checks = 50)
             FLANN_INDEX_LSH = 6
@@ -83,7 +83,7 @@ class FLANN(Matcher):
                               key_size = 12,            # default: 20
                               multi_probe_level = 1,    # default: 2
                               )
-            cls.lsh = cv2.FlannBasedMatcher(index_params, search_params)
+            cls._singleton.lsh = cv2.FlannBasedMatcher(index_params, search_params)
         # always return the singleton instance
         return cls._singleton
     

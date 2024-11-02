@@ -70,7 +70,7 @@ class SuperPoint(Detector, Describer):
         if not hasattr(cls, "_singleton"):
             # if singleton instance does NOT exist, create one, and initialize it
             cls._singleton = super().__new__(cls)
-            cls._singleton._detector = _SuperPoint({})
+            cls._singleton._detector = _SuperPoint({}).cuda()
             cls._singleton._describer = cls._singleton._detector
         # always return the singleton instance
         return cls._singleton
@@ -79,14 +79,14 @@ class SuperPoint(Detector, Describer):
         output = []
         for image in images:
             image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-            image = torch.from_numpy(image/255.).float()[None, None]
+            image = torch.from_numpy(image/255.).float()[None, None].cuda()
             output.append(self._detector({'image': image}))
             # convert output Tensors to numpy arrays
             output[-1].update(
                               {
-                              "keypoints": output[-1]["keypoints"][0].detach().numpy(),
-                              "scores": output[-1]["scores"][0].detach().numpy(),
-                              "descriptors": output[-1]["descriptors"][0].detach().numpy().T, # Note the `.T`
+                              "keypoints": output[-1]["keypoints"][0].detach().cpu().numpy(),
+                              "scores": output[-1]["scores"][0].detach().cpu().numpy(),
+                              "descriptors": output[-1]["descriptors"][0].detach().cpu().numpy().T, # Note the `.T`
                               }
                              )
             # convert the keypoints to CVKeypoints then to our KeyPoint
@@ -118,6 +118,7 @@ class SuperPoint(Detector, Describer):
                 raise RuntimeError(f"Un-supported keypoints detector `{keypoints_method}`")
 
             if False:
+                # FIXME
                 # TODO check the existance of the descriptor for that keypoint
                 # TODO if not exist, detect and compute the descriptors
                 output.append(self.detect([image])[0][1])

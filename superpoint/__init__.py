@@ -34,7 +34,7 @@ from xkeypoint import cv2
 from xkeypoint import torch
 
 from .superpoint import SuperPoint
-from .superglue import SuperGlue as _SuperGlue
+from .superglue import SuperGlue
 
 ## #############################################################################
 ## #### Private Type(s) ########################################################
@@ -119,51 +119,51 @@ from .superglue import SuperGlue as _SuperGlue
 #         keypoints, descriptors = list(keypoints), cv2.numpy.array(descriptors)
 #         return keypoints, descriptors
 
-class SuperGlue:
-    '''
-    Wrapper of superglue actual model
-    '''
-    def __init__(self):
-        ...
-
-    def __call__(self, images, keypoints, descriptors):
-        matcher = _SuperGlue(
-                             {
-                             'weights': 'indoor',
-                             'match_threshold': 0.4,
-                             }
-                            )
-        
-        images = list(images)
-        images[0] = cv2.cvtColor(images[0], cv2.COLOR_BGR2GRAY)
-        images[0] = torch.from_numpy(images[0]/255.).float()[None, None]
-        
-        images[1] = cv2.cvtColor(images[1], cv2.COLOR_BGR2GRAY)
-        images[1] = torch.from_numpy(images[1]/255.).float()[None, None]
-        
-        output = matcher(
-                          {
-                          'image0': images[0], 'image1': images[1],
-                          'descriptors0': torch.from_numpy(descriptors[0].T).float()[None], 'descriptors1': torch.from_numpy(descriptors[1].T).float()[None],
-                          'keypoints0': torch.from_numpy(cv2.numpy.asarray([kp.pt for kp in keypoints[0]])).float()[None], 'keypoints1': torch.from_numpy(cv2.numpy.asarray([kp.pt for kp in keypoints[1]])).float()[None],
-                          'scores0': torch.from_numpy(cv2.numpy.asarray([kp.response for kp in keypoints[0]])).float()[None], 'scores1': torch.from_numpy(cv2.numpy.asarray([kp.response for kp in keypoints[1]])).float()[None],
-                          }
-                         )
-        
-        # 'matches0': indices0, # use -1 for invalid match
-        # 'matches1': indices1, # use -1 for invalid match
-        # 'matching_scores0': mscores0,
-        # 'matching_scores1': mscores1,
-        
-        output.update(
-                      {
-                      "matches0": output["matches0"][0].numpy(),
-                      "matching_scores0": output["matching_scores0"][0].detach().numpy(),
-                      }
-                     )
-        matches = [cv2.DMatch(queryIdx, trainIdx, 1.0 - output["matching_scores0"][queryIdx]) for queryIdx, trainIdx in enumerate(output["matches0"]) if trainIdx > -1]
-
-        return matches
+# class SuperGlue:
+#     '''
+#     Wrapper of superglue actual model
+#     '''
+#     def __init__(self):
+#         ...
+#
+#     def __call__(self, images, keypoints, descriptors):
+#         matcher = _SuperGlue(
+#                              {
+#                              'weights': 'indoor',
+#                              'match_threshold': 0.4,
+#                              }
+#                             ).cuda()
+#
+#         images = list(images)
+#         images[0] = cv2.cvtColor(images[0], cv2.COLOR_BGR2GRAY)
+#         images[0] = torch.from_numpy(images[0]/255.).float()[None, None]
+#
+#         images[1] = cv2.cvtColor(images[1], cv2.COLOR_BGR2GRAY)
+#         images[1] = torch.from_numpy(images[1]/255.).float()[None, None]
+#
+#         output = matcher(
+#                           {
+#                           'image0': images[0].cuda(), 'image1': images[1].cuda(),
+#                           'descriptors0': torch.from_numpy(descriptors[0].T).float()[None].cuda(), 'descriptors1': torch.from_numpy(descriptors[1].T).float()[None].cuda(),
+#                           'keypoints0': torch.from_numpy(cv2.numpy.asarray([kp.pt for kp in keypoints[0]])).float()[None].cuda(), 'keypoints1': torch.from_numpy(cv2.numpy.asarray([kp.pt for kp in keypoints[1]])).float()[None].cuda(),
+#                           'scores0': torch.from_numpy(cv2.numpy.asarray([kp.response for kp in keypoints[0]])).float()[None].cuda(), 'scores1': torch.from_numpy(cv2.numpy.asarray([kp.response for kp in keypoints[1]])).float()[None].cuda(),
+#                           }
+#                          )
+#
+#         # 'matches0': indices0, # use -1 for invalid match
+#         # 'matches1': indices1, # use -1 for invalid match
+#         # 'matching_scores0': mscores0,
+#         # 'matching_scores1': mscores1,
+#
+#         output.update(
+#                       {
+#                       "matches0": output["matches0"][0].cpu().numpy(),
+#                       "matching_scores0": output["matching_scores0"][0].detach().cpu().numpy(),
+#                       }
+#                      )
+#         matches = [cv2.DMatch(queryIdx, trainIdx, 1.0 - output["matching_scores0"][queryIdx]) for queryIdx, trainIdx in enumerate(output["matches0"]) if trainIdx > -1]
+#
+#         return matches
 
 
 ## #############################################################################
