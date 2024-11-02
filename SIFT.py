@@ -44,7 +44,7 @@ from xkeypoint import Describer
 ## #### Private Method(s) Prototype ############################################
 ## #############################################################################
 
-SIFT_create = cv2.SIFT_create
+_SIFT_create = cv2.SIFT_create # Alias for OpenCV SIFT_create
 
 ## #############################################################################
 ## #### Private Variable(s) ####################################################
@@ -63,10 +63,15 @@ SIFT_create = cv2.SIFT_create
 ## #############################################################################
 
 class SIFT(Detector, Describer):
-    def __init__(self):
-        super().__init__()
-        self._detector = SIFT_create()
-        self._describer = self._detector
+    def __new__(cls):
+        # For any new instance creation, check the existance of the singleton instance
+        if not hasattr(cls, '_singleton'):
+            # if singleton instance does NOT exist, create one, and initialize it
+            cls._singleton = super().__new__(cls)
+            cls._singleton._detector = _SIFT_create()
+            cls._singleton._describer = cls._singleton._detector
+        # always return the singleton instance
+        return cls._singleton
     
     def detect(self, images):
         output = []

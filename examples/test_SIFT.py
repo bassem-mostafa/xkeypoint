@@ -32,6 +32,7 @@ Copyright 2024 BaSSeM
 
 from xkeypoint import cv2
 from xkeypoint import SIFT as KeyPointDetector
+from xkeypoint import SIFT as KeyPointDescriber
 import numpy as np
 
 ## #############################################################################
@@ -72,7 +73,8 @@ import numpy as np
 
 if __name__ == "__main__":
     detector = KeyPointDetector()
-    describer = KeyPointDetector()
+    describer = KeyPointDescriber()
+    print(id(detector), id(describer))
     images = lambda : (cv2.imread(path) for path in ["box.png", "box_in_scene.png"])
     images_keypoints = detector.detect(images())
     images_descriptors = describer.describe(images_keypoints, images())
