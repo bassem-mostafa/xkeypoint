@@ -51,6 +51,8 @@ from .superpoint import SuperGlue as _SuperGlue
 ## #### Private Variable(s) ####################################################
 ## #############################################################################
 
+_device = 'cuda' if torch.cuda.is_available() else 'cpu'
+
 ## #############################################################################
 ## #### Private Method(s) ######################################################
 ## #############################################################################
@@ -75,7 +77,9 @@ class SuperGlue(Matcher):
                                                   'weights': 'indoor',
                                                   'match_threshold': 0.4,
                                                   }
-                                                 ).cuda()
+                                                 )
+            cls._singleton.superglue.eval()
+            cls._singleton.superglue.to(_device)
         # always return the singleton instance
         return cls._singleton
     
@@ -101,10 +105,10 @@ class SuperGlue(Matcher):
             output.append(
                          self.superglue(
                                         {
-                                        'image0': image1.cuda(), 'image1': image2.cuda(),
-                                        'descriptors0': torch.from_numpy(image_descriptors1.T).float()[None].cuda(), 'descriptors1': torch.from_numpy(image_descriptors2.T).float()[None].cuda(),
-                                        'keypoints0': torch.from_numpy(cv2.numpy.asarray([kp.pt for kp in image_keypoints1])).float()[None].cuda(), 'keypoints1': torch.from_numpy(cv2.numpy.asarray([kp.pt for kp in image_keypoints2])).float()[None].cuda(),
-                                        'scores0': torch.from_numpy(cv2.numpy.asarray([kp.response for kp in image_keypoints1])).float()[None].cuda(), 'scores1': torch.from_numpy(cv2.numpy.asarray([kp.response for kp in image_keypoints2])).float()[None].cuda(),
+                                        'image0': image1.to(_device), 'image1': image2.to(_device),
+                                        'descriptors0': torch.from_numpy(image_descriptors1.T).float()[None].to(_device), 'descriptors1': torch.from_numpy(image_descriptors2.T).float()[None].to(_device),
+                                        'keypoints0': torch.from_numpy(cv2.numpy.asarray([kp.pt for kp in image_keypoints1])).float()[None].to(_device), 'keypoints1': torch.from_numpy(cv2.numpy.asarray([kp.pt for kp in image_keypoints2])).float()[None].to(_device),
+                                        'scores0': torch.from_numpy(cv2.numpy.asarray([kp.response for kp in image_keypoints1])).float()[None].to(_device), 'scores1': torch.from_numpy(cv2.numpy.asarray([kp.response for kp in image_keypoints2])).float()[None].to(_device),
                                         }
                                        )
                          )

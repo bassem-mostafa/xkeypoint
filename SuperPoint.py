@@ -52,6 +52,8 @@ from .superpoint import SuperPoint as _SuperPoint
 ## #### Private Variable(s) ####################################################
 ## #############################################################################
 
+_device = 'cuda' if torch.cuda.is_available() else 'cpu'
+
 ## #############################################################################
 ## #### Private Method(s) ######################################################
 ## #############################################################################
@@ -70,8 +72,12 @@ class SuperPoint(Detector, Describer):
         if not hasattr(cls, "_singleton"):
             # if singleton instance does NOT exist, create one, and initialize it
             cls._singleton = super().__new__(cls)
-            cls._singleton._detector = _SuperPoint({}).cuda()
+            cls._singleton._detector = _SuperPoint({})
             cls._singleton._describer = cls._singleton._detector
+            cls._singleton._detector.eval()
+            cls._singleton._describer.eval()
+            cls._singleton._detector.to(_device)
+            cls._singleton._describer.to(_device)
         # always return the singleton instance
         return cls._singleton
     
@@ -79,7 +85,7 @@ class SuperPoint(Detector, Describer):
         output = []
         for image in images:
             image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-            image = torch.from_numpy(image/255.).float()[None, None].cuda()
+            image = torch.from_numpy(image/255.).float()[None, None].to(_device)
             output.append(self._detector({'image': image}))
             # convert output Tensors to numpy arrays
             output[-1].update(
