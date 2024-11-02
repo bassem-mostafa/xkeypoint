@@ -109,7 +109,7 @@ if __name__ == "__main__":
         else:
             # print( "Not enough matches are found - {}/{}".format(len(good), MIN_MATCH_COUNT) )
             matchesMask = None
-        matchesMask = None
+        # matchesMask = None # Force drawing ALL keypoints
         draw_params = dict(
             matchColor = (0,255,0), # draw matches in green color
             singlePointColor = None,
