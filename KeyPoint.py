@@ -61,8 +61,14 @@ CVKeyPoint = cv2.KeyPoint
 
 class KeyPoint(CVKeyPoint):
     def __init__(self, *args):
+        # Initializes the OpenCV Key-Point attributes' values
         super().__init__()
 
+        # Initializes the Added attributes' values
+        self.point = None # stores that keypoint coordinates (x, y)
+        self.descriptor = {} # stores various descriptors for that same keypoint
+        
+        # Overwrite/Update the default values if provided with an initialization argument
         if len(args) == 1:
             if type(args[0]) == CVKeyPoint:
                 # OpenCV Key-Point deep-copy
@@ -73,13 +79,14 @@ class KeyPoint(CVKeyPoint):
                 self.angle = kp.angle
                 self.octave = kp.octave
                 self.class_id = kp.class_id
+                
+                # Update Added attributes values
+                self.point = self.pt
             else:
                 raise RuntimeError(f"Un-supported type of argument `{type(args[0])}`")
         elif len(args) > 1:
             raise RuntimeError(f"Un supported number of arguments `{len(args)}`")
     
-        self.descriptor = None
-        self.point = self.pt # Alias
     def __repr__(self):
         '''
         Describes the Key-Point

@@ -74,6 +74,7 @@ class SIFT(Detector, Describer):
             output.append(self._detector.detect(image))
             output[-1] = sorted(output[-1], key = lambda kp: kp.response, reverse = True)
             output[-1] = tuple(map(lambda kp: KeyPoint(kp), output[-1]))
+            # Here we define the method used to detect these keypoints
             output[-1] = (f"{self._detector.__class__.__name__}", output[-1])
         return tuple(output)
 
@@ -84,9 +85,10 @@ class SIFT(Detector, Describer):
             if keypoints_method not in [self._describer.__class__.__name__]:
                 raise RuntimeError(f"Un-supported keypoints detector `{keypoints_method}`")
             output.append(self._describer.compute(image, keypoints_values)[1])
-            # Update key-points' descriptor references
+            # Update key-points' descriptors
             for desc, kp in zip(output[-1], keypoints_values):
-                kp.descriptor = desc
+                kp.descriptor[f"{self._describer.__class__.__name__}"] = desc
+            # Here we define the method used to compute these descriptors
             output[-1] = (f"{self._describer.__class__.__name__}", output[-1])
         return tuple(output)
 
