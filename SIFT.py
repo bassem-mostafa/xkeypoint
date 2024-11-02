@@ -64,6 +64,7 @@ SIFT_create = cv2.SIFT_create
 
 class SIFT(Detector, Describer):
     def __init__(self):
+        super().__init__()
         self._detector = SIFT_create()
         self._describer = self._detector
     
@@ -80,7 +81,7 @@ class SIFT(Detector, Describer):
         output = []
         for image, image_keypoints in zip(images, keypoints):
             keypoints_method, keypoints_values = image_keypoints
-            if keypoints_method not in [self._detector.__class__.__name__]:
+            if keypoints_method not in [self._describer.__class__.__name__]:
                 raise RuntimeError(f"Un-supported keypoints detector `{keypoints_method}`")
             output.append(self._describer.compute(image, keypoints_values)[1])
             # Update key-points' descriptor references
