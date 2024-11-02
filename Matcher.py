@@ -57,13 +57,13 @@ Copyright 2024 BaSSeM
 class Matcher:
     def __init__(self):
         """
-        Initializes the describer
+        Initializes the matcher
         """
         ...
     
     def match(self, keypoints, descriptors, images):
         """
-        Describes given key-points on a given set of images
+        Matches given key-points on a given set of images
         
         argument(s):
             keypoints: tuple of key-points corresponding to each image
@@ -73,7 +73,7 @@ class Matcher:
         return(s):
             tuple of corresponding matches for each keypoints for each image
         """
-        raise NotImplementedError("Abstract Describer")
+        raise NotImplementedError("Abstract Matcher")
         return None
 
 ## #############################################################################
