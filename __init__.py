@@ -38,6 +38,8 @@ from io import StringIO
 
 from matplotlib import pyplot
 
+from itertools import combinations
+
 from .KeypointDetector import KeypointDetector
 from .KeypointDescriptor import KeypointDescriptor
 from .KeypointMatcher import KeypointMatcher
@@ -48,6 +50,7 @@ from .Describer import Describer
 from .Matcher import Matcher
 
 from .SIFT import SIFT
+from .FLANN import FLANN
 
 ## #############################################################################
 ## #### Private Type(s) ########################################################

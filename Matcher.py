@@ -61,17 +61,17 @@ class Matcher:
         """
         ...
     
-    def match(self, keypoints, descriptors, images):
+    def match(self, descriptors, keypoints, images):
         """
-        Matches given key-points on a given set of images
+        Matches given key-points and its descriptors on a given set of images
         
         argument(s):
-            keypoints: tuple of key-points corresponding to each image
             descriptors: tuple of descriptors corresponding to each keypoints set for each image
-            images: tuple of images to detect key-points within
+            keypoints: tuple of key-points corresponding to each image
+            images: tuple of images to match key-points within
         
         return(s):
-            tuple of corresponding matches for each keypoints for each image
+            tuple of corresponding matches for each keypoints and its descriptors for each image
         """
         raise NotImplementedError("Abstract Matcher")
         return None

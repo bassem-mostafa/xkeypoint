@@ -67,7 +67,7 @@ class Describer:
         
         argument(s):
             keypoints: tuple of key-points corresponding to each image
-            images: tuple of images to detect key-points within
+            images: tuple of images to describe key-points within
         
         return(s):
             tuple of corresponding descriptors for each keypoints for each image
