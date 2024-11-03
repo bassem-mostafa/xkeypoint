@@ -50,10 +50,6 @@ from .FLANN import FLANN
 from .SuperPoint import SuperPoint
 from .SuperGlue import SuperGlue
 
-from .KeypointDetector import KeypointDetector
-from .KeypointDescriptor import KeypointDescriptor
-from .KeypointMatcher import KeypointMatcher
-
 ## #############################################################################
 ## #### Private Type(s) ########################################################
 ## #############################################################################
