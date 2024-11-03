@@ -111,7 +111,7 @@ class KeypointMatcher:
             matches = flann.knnMatch(descriptors[0], descriptors[1], k = 2)
         elif method == ("SuperGlue"):
             matcher = SuperGlue()
-            matches = matcher(images, keypoints, descriptors)
+            matches = matcher.match(descriptors, keypoints, images)
         else:
             raise RuntimeError(f"Keypoint matcher `{method}` Not Implemented")
         

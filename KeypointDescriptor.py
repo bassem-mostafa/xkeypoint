@@ -31,7 +31,7 @@ Copyright 2024 BaSSeM
 ## #############################################################################
 
 from xkeypoint import cv2
-from xkeypoint.superpoint import SuperPoint
+from xkeypoint import SuperPoint
 
 ## #############################################################################
 ## #### Private Type(s) ########################################################
@@ -101,7 +101,7 @@ class KeypointDescriptor:
             metadata["descriptors"] = "BRISK"
         elif method in ["SuperPoint"]:
             describer = SuperPoint()
-            keypoints, descriptors = describer.compute(image, keypoints)
+            descriptors = describer.describe((keypoints), (image))
             metadata["descriptors"] = "SuperPoint"
         elif method in ["Alike"]:
             ... # TODO

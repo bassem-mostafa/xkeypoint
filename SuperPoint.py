@@ -95,10 +95,16 @@ class SuperPoint(Detector, Describer):
                               "descriptors": output[-1]["descriptors"][0].detach().cpu().numpy().T, # Note the `.T`
                               }
                              )
-            # convert the keypoints to CVKeypoints then to our KeyPoint
+            # convert the keypoints to CVKeypoints
             output[-1].update(
                               {
-                              "keypoints": tuple(map(lambda kp: KeyPoint(kp), [cv2.KeyPoint(x = keypoint[0], y = keypoint[1], size = 1, response = score) for keypoint, score in zip(output[-1]["keypoints"], output[-1]["scores"])]))
+                              "keypoints": tuple([cv2.KeyPoint(x = keypoint[0], y = keypoint[1], size = 1, response = score) for keypoint, score in zip(output[-1]["keypoints"], output[-1]["scores"])])
+                              }
+                             )
+            # convert the CVKeypoints to our KeyPoint
+            output[-1].update(
+                              {
+                              "keypoints": tuple(map(lambda kp: KeyPoint(kp), output[-1]["keypoints"]))
                               }
                              )
             # Update key-points' descriptors

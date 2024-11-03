@@ -31,7 +31,7 @@ Copyright 2024 BaSSeM
 ## #############################################################################
 
 from xkeypoint import cv2
-from xkeypoint.superpoint import SuperPoint
+from xkeypoint import SuperPoint
 
 ## #############################################################################
 ## #### Private Type(s) ########################################################
@@ -116,8 +116,7 @@ class KeypointDetector:
             metadata["keypoints"] = "BLOB"
         elif method in ["SuperPoint"]:
             detector = SuperPoint()
-            output = detector.detect(image)
-            keypoints = sorted(output, key = lambda kp: kp.response, reverse = True)
+            keypoints = detector.detect([image])[0][1]
             metadata["keypoints"] = "SuperPoint"
         elif method in ["Alike"]:
             ... # TODO
