@@ -31,11 +31,11 @@ Copyright 2024 BaSSeM
 ## #############################################################################
 
 from xkeypoint import cv2
+from xkeypoint import numpy as np
 from xkeypoint import combinations
 from xkeypoint import SIFT as KeyPointDetector
 from xkeypoint import SIFT as KeyPointDescriber
 from xkeypoint import FLANN as KeyPointMatcher
-import numpy as np
 
 ## #############################################################################
 ## #### Private Type(s) ########################################################
@@ -78,6 +78,7 @@ if __name__ == "__main__":
     describer = KeyPointDescriber()
     matcher = KeyPointMatcher()
     images = lambda : (cv2.imread(path) for path in ["img1.ppm", "img2.ppm", "img3.ppm", "img4.ppm", "img5.ppm", "img6.ppm"]) # ["box.png", "box_in_scene.png"]
+    
     images_keypoints = detector.detect(images())
     images_descriptors = describer.describe(images_keypoints, images())
     images_matches = matcher.match(images_descriptors, images_keypoints, images())
@@ -108,7 +109,7 @@ if __name__ == "__main__":
         else:
             # print( "Not enough matches are found - {}/{}".format(len(good), MIN_MATCH_COUNT) )
             matchesMask = None
-        matchesMask = None
+        # matchesMask = None # Force drawing ALL keypoints
         draw_params = dict(
             matchColor = (0,255,0), # draw matches in green color
             singlePointColor = None,

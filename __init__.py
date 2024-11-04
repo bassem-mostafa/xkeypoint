@@ -40,7 +40,6 @@ from matplotlib import pyplot
 
 from itertools import combinations
 
-from .KeyPoint import KeyPoint
 from .Detector import Detector
 from .Describer import Describer
 from .Matcher import Matcher

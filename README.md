@@ -55,3 +55,7 @@ class KeypointDescriptor:
 class KeypointMatcher:
 	...
 ```
+
+# Known Issue(s)
+
+- In **Python** make sure NOT to inherit from **OpenCV modules** as it causes segmentation fault which crashes the Python process. [OpenCV Python Binding](https://stackoverflow.com/questions/61128714/inheriting-an-opencv-class-from-opencv-python)

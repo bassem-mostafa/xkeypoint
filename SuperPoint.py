@@ -32,9 +32,7 @@ Copyright 2024 BaSSeM
 
 from xkeypoint import cv2
 from xkeypoint import torch
-from xkeypoint import numpy
 
-from xkeypoint import KeyPoint
 from xkeypoint import Detector
 from xkeypoint import Describer
 
@@ -82,66 +80,65 @@ class SuperPoint(Detector, Describer):
         return SuperPoint._singleton
     
     def detect(self, images):
-        output = []
-        for image in images:
-            image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-            image = torch.from_numpy(image/255.).float()[None, None].to(_device)
-            output.append(self._detector({'image': image}))
-            # convert output Tensors to numpy arrays
-            output[-1].update(
-                              {
-                              "keypoints": output[-1]["keypoints"][0].detach().cpu().numpy(),
-                              "scores": output[-1]["scores"][0].detach().cpu().numpy(),
-                              "descriptors": output[-1]["descriptors"][0].detach().cpu().numpy().T, # Note the `.T`
-                              }
-                             )
-            # convert the keypoints to CVKeypoints
-            output[-1].update(
-                              {
-                              "keypoints": tuple([cv2.KeyPoint(x = keypoint[0], y = keypoint[1], size = 1, response = score) for keypoint, score in zip(output[-1]["keypoints"], output[-1]["scores"])])
-                              }
-                             )
-            # convert the CVKeypoints to our KeyPoint
-            output[-1].update(
-                              {
-                              "keypoints": tuple(map(lambda kp: KeyPoint(kp), output[-1]["keypoints"]))
-                              }
-                             )
-            # Update key-points' descriptors
-            for desc, kp in zip(output[-1]["descriptors"], output[-1]["keypoints"]):
-                kp.descriptor[f"{self._describer.__class__.__name__}"] = desc
-            
-            # Sort keypoints with respect to relevance
-            output[-1].update(
-                              {
-                                  "keypoints": sorted(output[-1]["keypoints"], key = lambda kp: kp.response, reverse = True),
-                              }
-                             )
-
-            # Here we define the method used to detect these keypoints
-            output[-1] = (f"{self._detector.__class__.__name__}", output[-1]["keypoints"])
+        # Convert images to tensors
+        images = list(images)
+        for i in range(len(images)):
+            images[i] = cv2.cvtColor(images[i], cv2.COLOR_BGR2GRAY)
+            images[i] = torch.from_numpy(images[i]/255.).float()[None].to(_device)
+        images = torch.stack(images)
+        
+        output = self._detector({'image': images})
+        # convert output Tensors to numpy arrays
+        output.update(
+                      {
+                      "keypoints": [elem.detach().cpu().numpy() for elem in output["keypoints"]],
+                      "scores": [elem.detach().cpu().numpy() for elem in output["scores"]],
+                      "descriptors": [elem.detach().cpu().numpy() for elem in output["descriptors"]],
+                      }
+                     )
+        # convert the keypoints to CVKeypoints
+        output.update(
+                      {
+                      "keypoints": [[cv2.KeyPoint(x = keypoint[0], y = keypoint[1], size = 1, response = score) for keypoint, score in zip(keypoints, scores)] for keypoints, scores in zip(output["keypoints"], output["scores"])],
+                      }
+                     )
+        output = output["keypoints"]
+        for i in range(len(output)):
+            output[i] = (f"{self._detector.__class__.__name__}", output[i])
         return tuple(output)
-    
+
     def describe(self, keypoints, images):
-        output = []
-        for image, image_keypoints in zip(images, keypoints):
-            keypoints_method, keypoints_values = image_keypoints
-            if keypoints_method not in [self._describer.__class__.__name__]:
-                raise RuntimeError(f"Un-supported keypoints detector `{keypoints_method}`")
+        keypoints_methods, keypoints_values = tuple(zip(*keypoints))
+        for method in keypoints_methods:
+            if method not in [self._describer.__class__.__name__]:
+                raise RuntimeError(f"Un-supported keypoints detector `{method}`")
 
-            if False:
-                # FIXME
-                # TODO check the existance of the descriptor for that keypoint
-                # TODO if not exist, detect and compute the descriptors
-                output.append(self.detect([image])[0][1])
-            else:
-                output.append(keypoints_values)
-            
-            # retrieve the descriptors related to detected keypoints
-            output[-1] = numpy.asarray(list(keypoint.descriptor[f"{self._describer.__class__.__name__}"] for keypoint in output[-1] if keypoint in keypoints_values))
-
-            # Here we define the method used to compute these descriptors
-            output[-1] = (f"{self._describer.__class__.__name__}", output[-1])
+        # Convert images to tensors
+        images = list(images)
+        for i in range(len(images)):
+            images[i] = cv2.cvtColor(images[i], cv2.COLOR_BGR2GRAY)
+            images[i] = torch.from_numpy(images[i]/255.).float()[None].to(_device)
+        images = torch.stack(images)
+        
+        output = self._detector({'image': images})
+        # convert output Tensors to numpy arrays
+        output.update(
+                      {
+                      "keypoints": [elem.detach().cpu().numpy() for elem in output["keypoints"]],
+                      "scores": [elem.detach().cpu().numpy() for elem in output["scores"]],
+                      "descriptors": [elem.detach().cpu().numpy() for elem in output["descriptors"]],
+                      }
+                     )
+        # convert the keypoints to CVKeypoints
+        output.update(
+                      {
+                      "keypoints": [[cv2.KeyPoint(x = keypoint[0], y = keypoint[1], size = 1, response = score) for keypoint, score in zip(keypoints, scores)] for keypoints, scores in zip(output["keypoints"], output["scores"])],
+                      }
+                     )
+        
+        output = output["descriptors"]
+        for i in range(len(output)):
+            output[i] = (f"{self._detector.__class__.__name__}", output[i])
         return tuple(output)
 
 ## #############################################################################

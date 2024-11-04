@@ -32,7 +32,6 @@ Copyright 2024 BaSSeM
 
 from xkeypoint import cv2
 
-from xkeypoint import KeyPoint
 from xkeypoint import Detector
 from xkeypoint import Describer
 
@@ -74,27 +73,28 @@ class SIFT(Detector, Describer):
         return SIFT._singleton
     
     def detect(self, images):
-        output = []
-        for image in images:
-            output.append(self._detector.detect(image))
-            output[-1] = sorted(output[-1], key = lambda kp: kp.response, reverse = True)
-            output[-1] = tuple(map(lambda kp: KeyPoint(kp), output[-1]))
+        output = self._detector.detect(tuple(images))
+        output = list(output)
+        for i in range(len(output)):
+            # output[i] = sorted(output[-1], key = lambda kp: kp.response, reverse = True)
+            # output[i] = tuple(map(lambda kp: KeyPoint(kp), output[i]))
             # Here we define the method used to detect these keypoints
-            output[-1] = (f"{self._detector.__class__.__name__}", output[-1])
+            output[i] = (f"{self._detector.__class__.__name__}", output[i])
         return tuple(output)
 
     def describe(self, keypoints, images):
-        output = []
-        for image, image_keypoints in zip(images, keypoints):
-            keypoints_method, keypoints_values = image_keypoints
-            if keypoints_method not in [self._describer.__class__.__name__]:
-                raise RuntimeError(f"Un-supported keypoints detector `{keypoints_method}`")
-            output.append(self._describer.compute(image, keypoints_values)[1])
-            # Update key-points' descriptors
-            for desc, kp in zip(output[-1], keypoints_values):
-                kp.descriptor[f"{self._describer.__class__.__name__}"] = desc
+        keypoints_methods, keypoints_values = tuple(zip(*keypoints))
+        for method in keypoints_methods:
+            if method not in [self._describer.__class__.__name__]:
+                raise RuntimeError(f"Un-supported keypoints detector `{method}`")
+        output = self._describer.compute(tuple(images), keypoints_values)[1] # TODO Check if returned keypoints need to be processed
+        output = list(output)
+        for i in range(len(output)):
+            # # Update key-points' descriptors
+            # for desc, kp in zip(output[i], keypoints_values):
+            #     kp.descriptor[f"{self._describer.__class__.__name__}"] = desc
             # Here we define the method used to compute these descriptors
-            output[-1] = (f"{self._describer.__class__.__name__}", output[-1])
+            output[i] = (f"{self._describer.__class__.__name__}", output[i])
         return tuple(output)
 
 ## #############################################################################

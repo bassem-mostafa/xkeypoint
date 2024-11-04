@@ -106,7 +106,7 @@ class SuperGlue(Matcher):
                          self.superglue(
                                         {
                                         'image0': image1.to(_device), 'image1': image2.to(_device),
-                                        'descriptors0': torch.from_numpy(image_descriptors1.T).float()[None].to(_device), 'descriptors1': torch.from_numpy(image_descriptors2.T).float()[None].to(_device),
+                                        'descriptors0': torch.from_numpy(image_descriptors1).float()[None].to(_device), 'descriptors1': torch.from_numpy(image_descriptors2).float()[None].to(_device),
                                         'keypoints0': torch.from_numpy(cv2.numpy.asarray([kp.pt for kp in image_keypoints1])).float()[None].to(_device), 'keypoints1': torch.from_numpy(cv2.numpy.asarray([kp.pt for kp in image_keypoints2])).float()[None].to(_device),
                                         'scores0': torch.from_numpy(cv2.numpy.asarray([kp.response for kp in image_keypoints1])).float()[None].to(_device), 'scores1': torch.from_numpy(cv2.numpy.asarray([kp.response for kp in image_keypoints2])).float()[None].to(_device),
                                         }
