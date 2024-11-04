@@ -63,9 +63,9 @@ from xkeypoint import SIFT
 class FLANN(Matcher):
     def __new__(cls):
         # For any new instance creation, check the existance of the singleton instance
-        if not hasattr(cls, "_singleton"):
+        if not hasattr(FLANN, "_singleton"):
             # if singleton instance does NOT exist, create one
-            cls._singleton = super().__new__(cls)
+            FLANN._singleton = super(FLANN, cls).__new__(cls)
             # Initialize flann-kdtree matcher
             search_params = dict(checks = 50)
             FLANN_INDEX_KDTREE = 1
@@ -73,7 +73,7 @@ class FLANN(Matcher):
                                algorithm = FLANN_INDEX_KDTREE,
                                trees = 5,
                                )
-            cls._singleton.kdtree = cv2.FlannBasedMatcher(index_params, search_params)
+            FLANN._singleton.kdtree = cv2.FlannBasedMatcher(index_params, search_params)
             # Initialize flann-lsh matcher
             search_params = dict(checks = 50)
             FLANN_INDEX_LSH = 6
@@ -83,9 +83,9 @@ class FLANN(Matcher):
                               key_size = 12,            # default: 20
                               multi_probe_level = 1,    # default: 2
                               )
-            cls._singleton.lsh = cv2.FlannBasedMatcher(index_params, search_params)
+            FLANN._singleton.lsh = cv2.FlannBasedMatcher(index_params, search_params)
         # always return the singleton instance
-        return cls._singleton
+        return FLANN._singleton
     
     def match(self, descriptors, keypoints, images):
         output = []

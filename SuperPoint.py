@@ -69,17 +69,17 @@ _device = 'cuda' if torch.cuda.is_available() else 'cpu'
 class SuperPoint(Detector, Describer):
     def __new__(cls):
         # For any new instance creation, check the existance of the singleton instance
-        if not hasattr(cls, "_singleton"):
+        if not hasattr(SuperPoint, "_singleton"):
             # if singleton instance does NOT exist, create one, and initialize it
-            cls._singleton = super().__new__(cls)
-            cls._singleton._detector = _SuperPoint({})
-            cls._singleton._describer = cls._singleton._detector
-            cls._singleton._detector.eval()
-            cls._singleton._describer.eval()
-            cls._singleton._detector.to(_device)
-            cls._singleton._describer.to(_device)
+            SuperPoint._singleton = super(SuperPoint, cls).__new__(cls)
+            SuperPoint._singleton._detector = _SuperPoint({})
+            SuperPoint._singleton._describer = SuperPoint._singleton._detector
+            SuperPoint._singleton._detector.eval()
+            SuperPoint._singleton._describer.eval()
+            SuperPoint._singleton._detector.to(_device)
+            SuperPoint._singleton._describer.to(_device)
         # always return the singleton instance
-        return cls._singleton
+        return SuperPoint._singleton
     
     def detect(self, images):
         output = []

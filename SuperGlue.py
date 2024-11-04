@@ -68,20 +68,20 @@ _device = 'cuda' if torch.cuda.is_available() else 'cpu'
 class SuperGlue(Matcher):
     def __new__(cls):
         # For any new instance creation, check the existance of the singleton instance
-        if not hasattr(cls, "_singleton"):
+        if not hasattr(SuperGlue, "_singleton"):
             # if singleton instance does NOT exist, create one
-            cls._singleton = super().__new__(cls)
+            SuperGlue._singleton = super(SuperGlue, cls).__new__(cls)
             # Initialize super-glue matcher
-            cls._singleton.superglue = _SuperGlue(
+            SuperGlue._singleton.superglue = _SuperGlue(
                                                   {
                                                   'weights': 'indoor',
                                                   'match_threshold': 0.4,
                                                   }
                                                  )
-            cls._singleton.superglue.eval()
-            cls._singleton.superglue.to(_device)
+            SuperGlue._singleton.superglue.eval()
+            SuperGlue._singleton.superglue.to(_device)
         # always return the singleton instance
-        return cls._singleton
+        return SuperGlue._singleton
     
     def match(self, descriptors, keypoints, images):
         output = []
