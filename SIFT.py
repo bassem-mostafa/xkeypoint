@@ -65,12 +65,14 @@ class SIFT(Detector, Describer):
     def __new__(cls):
         # For any new instance creation, check the existance of the singleton instance
         if not hasattr(SIFT, "_singleton"):
-            # if singleton instance does NOT exist, create one, and initialize it
-            SIFT._singleton = super(SIFT, cls).__new__(cls)
-            SIFT._singleton._detector = _SIFT_create()
-            SIFT._singleton._describer = SIFT._singleton._detector
-        # always return the singleton instance
-        return SIFT._singleton
+            # if singleton instance does NOT exist, create one
+            SIFT._singleton = _SIFT_create()
+        # Create this cls instance, and initilize its detector and descriptor to singleton instance
+        instance = super().__new__(cls)
+        instance._detector = SIFT._singleton
+        instance._describer = SIFT._singleton
+        # return the created cls instance
+        return instance
     
     def detect(self, images):
         output = self._detector.detect(tuple(images))

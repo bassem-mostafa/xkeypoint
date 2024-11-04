@@ -65,7 +65,7 @@ class FLANN(Matcher):
         # For any new instance creation, check the existance of the singleton instance
         if not hasattr(FLANN, "_singleton"):
             # if singleton instance does NOT exist, create one
-            FLANN._singleton = super(FLANN, cls).__new__(cls)
+            FLANN._singleton = type("_FLANN", (), {})
             # Initialize flann-kdtree matcher
             search_params = dict(checks = 50)
             FLANN_INDEX_KDTREE = 1
@@ -84,8 +84,12 @@ class FLANN(Matcher):
                               multi_probe_level = 1,    # default: 2
                               )
             FLANN._singleton.lsh = cv2.FlannBasedMatcher(index_params, search_params)
-        # always return the singleton instance
-        return FLANN._singleton
+        # Create this cls instance, and initilize its matcher to singleton instance
+        instance = super().__new__(cls)
+        instance.kdtree = FLANN._singleton.kdtree
+        instance.lsh = FLANN._singleton.lsh
+        # return the created cls instance
+        return instance
     
     def match(self, descriptors, keypoints, images):
         output = []

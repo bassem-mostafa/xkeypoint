@@ -70,18 +70,19 @@ class SuperGlue(Matcher):
         # For any new instance creation, check the existance of the singleton instance
         if not hasattr(SuperGlue, "_singleton"):
             # if singleton instance does NOT exist, create one
-            SuperGlue._singleton = super(SuperGlue, cls).__new__(cls)
-            # Initialize super-glue matcher
-            SuperGlue._singleton.superglue = _SuperGlue(
-                                                  {
-                                                  'weights': 'indoor',
-                                                  'match_threshold': 0.4,
-                                                  }
-                                                 )
-            SuperGlue._singleton.superglue.eval()
-            SuperGlue._singleton.superglue.to(_device)
-        # always return the singleton instance
-        return SuperGlue._singleton
+            SuperGlue._singleton = _SuperGlue(
+                                              {
+                                              'weights': 'indoor',
+                                              'match_threshold': 0.4,
+                                              }
+                                             )
+            SuperGlue._singleton.eval()
+            SuperGlue._singleton.to(_device)
+        # Create this cls instance, and initilize its matcher to singleton instance
+        instance = super().__new__(cls)
+        instance.superglue = SuperGlue._singleton
+        # return the created cls instance
+        return instance
     
     def match(self, descriptors, keypoints, images):
         output = []

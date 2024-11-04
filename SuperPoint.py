@@ -68,16 +68,20 @@ class SuperPoint(Detector, Describer):
     def __new__(cls):
         # For any new instance creation, check the existance of the singleton instance
         if not hasattr(SuperPoint, "_singleton"):
-            # if singleton instance does NOT exist, create one, and initialize it
-            SuperPoint._singleton = super(SuperPoint, cls).__new__(cls)
-            SuperPoint._singleton._detector = _SuperPoint({})
-            SuperPoint._singleton._describer = SuperPoint._singleton._detector
-            SuperPoint._singleton._detector.eval()
-            SuperPoint._singleton._describer.eval()
-            SuperPoint._singleton._detector.to(_device)
-            SuperPoint._singleton._describer.to(_device)
-        # always return the singleton instance
-        return SuperPoint._singleton
+            # if singleton instance does NOT exist, create one
+            SuperPoint._singleton = _SuperPoint({})
+            SuperPoint._singleton.eval()
+            SuperPoint._singleton.to(_device)
+        # Create this cls instance, and initilize its detector and descriptor to singleton instance
+        instance = super().__new__(cls)
+        instance._detector = SuperPoint._singleton
+        instance._describer = SuperPoint._singleton
+        instance._detector.eval()
+        instance._describer.eval()
+        instance._detector.to(_device)
+        instance._describer.to(_device)
+        # return the created cls instance
+        return instance
     
     def detect(self, images):
         # Convert images to tensors
