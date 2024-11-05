@@ -128,7 +128,7 @@ class SuperGlue(Matcher):
                              )
             
             # convert super-glue matches to CVMatches
-            output[-1] = [cv2.DMatch(queryIdx, trainIdx, 1.0 - output[-1]["matching_scores0"][queryIdx]) for queryIdx, trainIdx in enumerate(output[-1]["matches0"]) if trainIdx > -1]
+            output[-1] = [cv2.DMatch(queryIdx, trainIdx, 1.0 - output[-1]["matching_scores0"][queryIdx]) for queryIdx, trainIdx in enumerate(output[-1]["matches0"]) if trainIdx > -1] if len(output[-1]["matches0"].shape) > 0 else []
 
             # store all the good matches as per Lowe's ratio test.
             matches = output[-1]
